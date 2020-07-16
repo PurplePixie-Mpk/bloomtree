@@ -82,33 +82,47 @@ void BloomTree::GetNeighbours(l node, l next, l cur, bool dir, vector<int>& neig
 }
 
 void BloomTree::GetEdgePath(l u, l v, vector<bool>& path, l& dir_change_idx) {
-	vector<bool> path_u, path_v;
-	GetVertexPath(u, path_u);
-	GetVertexPath(v, path_v);
-	l len_u = path_u.size(), len_v = path_v.size(), i = 0;
-	for(; i < len_u && i < len_v && path_u[i] == path_v[i]; ++i);
-	rep(j, 0, len_u - i){
-		path.pb(path_u[len_u - j - 1]);
-	}
-	dir_change_idx = path.size();
-	rep(j, i, len_v){
-		path.pb(path_v[j]);
-	}
-}
-
-void BloomTree::GetVertexPath(l node, vector<bool>& path) {
-	node = node + num_vertices - 1;
-	vector<bool> ret;
-	while (node != 0) {
-		l par = Parent(node);
-		if (node == LeftChild(par)) ret.pb(0);
-		else ret.pb(1);
-		node = par;
-	}
-	while (!ret.empty()) {
-		path.pb(ret.back());
-		ret.pop_back();
-	}
+    vector<bool> path_v;
+    u = u + num_vertices - 1;
+    v = v + num_vertices - 1;
+    bool same_lev; // is true if u and v are in the same levels of the bloom tree
+    l num_ful_levels = floor(log2(2*num_vertices - 1));
+    long int ful_vertices = pow(2,num_ful_levels) - 1;
+    if((u < ful_vertices && v < ful_vertices) || (u >= ful_vertices && v >= ful_vertices)) {
+        same_lev=true;
+    }
+    else
+    {
+        same_lev=false;
+        if(u>v) {
+            l par = Parent(u);
+            if(u == LeftChild(par)) path.pb(0);
+            else path.pb(1);
+            u = par;
+        }
+        else {
+            l par = Parent(v);
+            if(v == LeftChild(par)) path_v.pb(0);
+            else path_v.pb(1);
+            v = par;
+        }
+    }
+    while(u != v)
+    {
+        l par_u = Parent(u);
+        l par_v = Parent(v);
+        if(u == LeftChild(par_u)) path.pb(0);
+        else path.pb(1);
+        if(v == LeftChild(par_v)) path_v.pb(0);
+        else path_v.pb(1);
+        u=par_u;
+        v=par_v;
+    }
+    dir_change_idx=path.size();
+    while(!path_v.empty()) {
+        path.pb(path_v.back());
+        path_v.pop_back();
+    }
 }
 
 void BloomTree::Bset(l src, l dest, vector<bool>& path, int dir_change_idx) {

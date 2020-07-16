@@ -27,9 +27,6 @@ class BloomTree {
 	// Get neighbours. Utility function.
 	void GetNeighbours(l node, l next, l cur, bool dir, vector<int>& neigh);
 
-	// Returns the path from root to node.
-	void GetVertexPath(l node, vector<bool>& path);
-
 	// Returns the path from u to v.
 	void GetEdgePath(l u, l v, vector<bool>& path, l& dir_change_idx);
 
